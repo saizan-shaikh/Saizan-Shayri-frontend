@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#f8fafc] text-slate-800 selection:bg-blue-100 selection:text-blue-700 min-h-screen overflow-x-hidden antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-bold tracking-tight text-slate-900;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white shadow-sm;
+  }
+
+  .primary-btn {
+    @apply bg-[#2563eb] text-white hover:bg-blue-600 transition-all duration-300 font-semibold px-6 py-2.5 rounded-xl active:scale-95 shadow-md hover:shadow-lg flex items-center justify-center;
+  }
+
+  .secondary-btn {
+    @apply bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all duration-300 font-semibold px-6 py-2.5 rounded-xl active:scale-95 flex items-center justify-center;
+  }
+
+  .accent-card {
+    @apply bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 overflow-hidden;
+  }
+
+  .neon-text {
+    @apply text-blue-600 drop-shadow-sm;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 99, 235, 0.2);
+}
+
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
