@@ -65,7 +65,7 @@ const Home = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-8 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar">
         {poets.map((poet, index) => (
           <motion.div
             key={poet.name}
@@ -74,9 +74,9 @@ const Home = () => {
             transition={{ delay: index * 0.1 }}
             whileHover={{ y: -10 }}
             onClick={() => navigate(poet.path)}
-            className="accent-card group cursor-pointer"
+            className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center accent-card group cursor-pointer flex-shrink-0"
           >
-            <div className="relative h-64 overflow-hidden">
+            <div className="relative h-48 md:h-64 overflow-hidden">
               <img 
                 src={poet.image} 
                 alt={poet.name} 
@@ -84,15 +84,15 @@ const Home = () => {
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
-              <div className="absolute bottom-4 left-6">
-                <h3 className="text-2xl font-bold text-white tracking-wide">{poet.name}</h3>
+              <div className="absolute bottom-3 left-4 md:bottom-4 md:left-6">
+                <h3 className="text-xl md:text-2xl font-bold text-white tracking-wide">{poet.name}</h3>
               </div>
             </div>
-            <div className="p-6 space-y-3">
-              <p className="text-slate-500 text-sm leading-relaxed font-medium">
+            <div className="p-4 md:p-6 space-y-2 md:space-y-3">
+              <p className="text-slate-500 text-xs md:text-sm leading-relaxed font-medium line-clamp-2 md:line-clamp-none">
                 {poet.bio}
               </p>
-              <div className="flex items-center text-blue-600 text-sm font-bold group-hover:translate-x-2 transition-transform">
+              <div className="flex items-center text-blue-600 text-xs md:text-sm font-bold group-hover:translate-x-2 transition-transform">
                 <span>See Poetry</span>
                 <ArrowRight className="w-4 h-4 ml-2" />
               </div>

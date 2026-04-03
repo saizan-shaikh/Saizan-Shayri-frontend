@@ -66,7 +66,7 @@ const RahatPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8">
         <AnimatePresence mode="popLayout">
           {shayris.map((shayri, index) => (
             <motion.div
@@ -127,35 +127,64 @@ const RahatPage = () => {
       )}
 
       {pages > 1 && (
-        <div className="flex justify-center items-center space-x-6 py-16">
+        <div className="flex justify-center items-center space-x-3 md:space-x-6 py-12 md:py-16">
           <button 
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="p-4 rounded-2xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
+            className="p-3 md:p-4 rounded-xl md:rounded-2xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
           </button>
           
-          <div className="flex items-center space-x-2">
-            {[...Array(pages).keys()].map(x => (
-                <button
-                key={x + 1}
-                onClick={() => setPage(x + 1)}
-                className={`w-12 h-12 rounded-xl flex items-center justify-center font-black transition-all ${
-                  page === x + 1 ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white border border-slate-100 hover:bg-slate-50 text-slate-400'
-                }`}
-                >
-                  {x + 1}
-                </button>
-            ))}
+          <div className="flex items-center space-x-1.5 md:space-x-2">
+            {(() => {
+              const start = Math.floor((page - 1) / 3) * 3 + 1;
+              const end = Math.min(start + 2, pages);
+              const pageNumbers = [];
+              for (let i = start; i <= end; i++) {
+                pageNumbers.push(i);
+              }
+              
+              return (
+                <>
+                  {start > 1 && (
+                      <button
+                      onClick={() => setPage(start - 1)}
+                      className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-black bg-white border border-slate-100 text-slate-400 hover:bg-slate-50"
+                      >
+                        ...
+                      </button>
+                  )}
+                  {pageNumbers.map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n)}
+                      className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-black transition-all ${
+                        page === n ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white border border-slate-100 hover:bg-slate-50 text-slate-400'
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  {end < pages && (
+                      <button
+                      onClick={() => setPage(end + 1)}
+                      className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-black bg-white border border-slate-100 text-slate-400 hover:bg-slate-50"
+                      >
+                        {">"}
+                      </button>
+                  )}
+                </>
+              )
+            })()}
           </div>
 
           <button 
             onClick={() => setPage(p => Math.min(pages, p + 1))}
             disabled={page === pages}
-            className="p-4 rounded-2xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
+            className="p-3 md:p-4 rounded-xl md:rounded-2xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
       )}
