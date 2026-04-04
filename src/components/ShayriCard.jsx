@@ -44,11 +44,11 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage }) => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -3 }}
-      className="glass rounded-2xl p-3 md:p-4 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 flex flex-col justify-between h-full bg-white/70 aspect-square md:aspect-auto"
+      className="glass rounded-2xl p-4 md:p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 flex flex-col justify-between h-full bg-white/70 min-h-[240px] md:min-h-0 md:aspect-auto"
     >
-      <div className="space-y-2 md:space-y-3 flex-grow flex flex-col">
+      <div className="space-y-3 md:space-y-4 flex-grow flex flex-col">
         <div className="flex justify-between items-start flex-shrink-0">
-          <div className="w-10 h-10 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0 bg-slate-100">
+          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0 bg-slate-100">
             <img 
               src={displayImage} 
               alt={shayri.poet} 
@@ -78,7 +78,7 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage }) => {
                 <button
                   key={l}
                   onClick={() => setLang(l)}
-                  className={`px-1 md:px-1.5 py-0.5 text-[8px] md:text-[9px] rounded transition-all capitalize font-bold ${
+                  className={`px-1.5 md:px-2 py-0.5 text-[8px] md:text-[9px] rounded transition-all capitalize font-bold ${
                     lang === l ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'
                   }`}
                 >
@@ -89,14 +89,14 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage }) => {
           </div>
         </div>
 
-        <div className="relative flex-grow flex items-center justify-center text-center px-1 overflow-hidden py-2 md:py-0">
+        <div className="relative flex-grow flex items-center justify-center text-center px-2 overflow-hidden py-3 md:py-0">
           <AnimatePresence mode="wait">
             <motion.p
               key={lang}
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
-              className={`text-xs sm:text-sm md:text-base font-bold tracking-tight leading-relaxed text-slate-800 ${lang === 'urdu' ? 'font-serif' : ''} text-center w-full line-clamp-4 md:line-clamp-none`}
+              className={`text-xs sm:text-sm md:text-base font-bold tracking-tight leading-loose text-slate-800 ${lang === 'urdu' ? 'font-serif' : ''} text-center w-full break-words overflow-wrap-anywhere`}
               dir={lang === 'urdu' ? 'rtl' : 'ltr'}
             >
               {transliterate(shayri.text, lang)}
@@ -104,6 +104,7 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage }) => {
           </AnimatePresence>
         </div>
       </div>
+
 
       <div className="flex items-center justify-between pt-2 md:pt-3 mt-2 md:mt-3 border-t border-slate-100/50 flex-shrink-0">
         <span className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest truncate max-w-[60%]">{shayri.poet}</span>

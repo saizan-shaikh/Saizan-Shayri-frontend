@@ -51,7 +51,7 @@ const MirPage = () => {
   }, [page]);
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-6 md:space-y-12 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-5">
            <Quote className="w-32 h-32 text-slate-200" />
@@ -66,7 +66,7 @@ const MirPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-8">
         <AnimatePresence mode="popLayout">
           {shayris.map((shayri, index) => (
             <motion.div
@@ -127,7 +127,7 @@ const MirPage = () => {
       )}
 
       {pages > 1 && (
-        <div className="flex justify-center items-center space-x-3 md:space-x-6 py-12 md:py-16">
+        <div className="flex justify-center items-center space-x-3 md:space-x-6 py-6 md:py-12">
           <button 
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
