@@ -68,12 +68,11 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                 
-                {/* Analytics & Discovery */}
-                <Route path="/trending" element={<ProtectedRoute><Trending /></ProtectedRoute>} />
-                <Route path="/popular" element={<ProtectedRoute><Popular /></ProtectedRoute>} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                 
                 {/* Admin-Only Routes */}
-                <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                 <Route path="/admin/add-shayri" element={<AdminRoute><AddShayri /></AdminRoute>} />
                 <Route path="/admin/edit-shayri/:id" element={<AdminRoute><EditShayri /></AdminRoute>} />
                 

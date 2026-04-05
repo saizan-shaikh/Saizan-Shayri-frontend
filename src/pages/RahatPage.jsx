@@ -29,7 +29,8 @@ const RahatPage = () => {
       // Dynamic Pagination Logic for LifeAdvice
       const lastPageItems = data.count % pageSize;
       const basePages = data.pages;
-      const computedTotal = (lastPageItems === 3 || lastPageItems === 0) ? basePages + 1 : basePages;
+      // Requirement: If 3rd shayari is added on a page -> move Life Advice to NEXT page
+      const computedTotal = (lastPageItems >= 3 || lastPageItems === 0) && data.count > 0 ? basePages + 1 : basePages;
       setTotalPages(computedTotal);
       
       setLoading(false);
