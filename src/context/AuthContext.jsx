@@ -1,7 +1,12 @@
 import React from 'react';
 import { createContext, useState, useContext, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import BASE_URL from '../config/api';
 
 const AuthContext = createContext();
+
+const API_URL = BASE_URL;
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -10,48 +15,53 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const activeEmail = localStorage.getItem('activeEmail');
-    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-
-    if (token && activeEmail) {
-      const activeUser = registeredUsers.find(u => u.email === activeEmail);
-      if (activeUser) {
-        setUser(activeUser);
+    const checkUser = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // Verify token and get fresh profile
+          const { data } = await axios.get(`${API_URL}/auth/profile`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setUser({ ...data, token });
+        } catch (error) {
+          console.error('Session expired or invalid token');
+          localStorage.removeItem('token');
+          setUser(null);
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    checkUser();
   }, []);
 
   const login = async (email, password) => {
-    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-    const existingUser = registeredUsers.find(u => u.email === email && u.password === password);
-
-    if (existingUser) {
-      localStorage.setItem('token', 'active-auth-session');
-      localStorage.setItem('activeEmail', email);
-      setUser(existingUser);
-    } else {
-      throw { response: { data: { message: 'Invalid credentials. Please try again.' } } };
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
+      
+      localStorage.setItem('token', data.token);
+      setUser(data);
+      return data;
+    } catch (error) {
+      throw error;
     }
   };
 
   const register = async (username, email, password) => {
-    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-    const exists = registeredUsers.some(u => u.email === email);
-
-    if (exists) {
-      throw { response: { data: { message: 'Email already registered.' } } };
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/register`, { username, email, password });
+      
+      localStorage.setItem('token', data.token);
+      setUser(data);
+      return data;
+    } catch (error) {
+      throw error;
     }
-
-    const newUser = { username, email, password };
-    registeredUsers.push(newUser);
-    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('activeEmail');
     setUser(null);
   };
 

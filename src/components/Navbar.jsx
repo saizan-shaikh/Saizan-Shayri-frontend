@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Heart, BookOpen } from 'lucide-react';
+import { LogOut, Heart, BookOpen, PlusCircle, TrendingUp, Stars, BarChart3 } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -31,13 +31,28 @@ const Navbar = () => {
         </Link>
 
         <div className="flex items-center space-x-3 md:space-x-8">
-          <Link to="/" className="text-slate-600 hover:text-blue-600 transition-colors flex items-center space-x-2 font-bold text-xs md:text-sm uppercase tracking-wider">
-            <BookOpen className="w-4 h-4 md:w-5 md:h-5" />
-            <span className="hidden md:inline">Home</span>
+          <Link to="/trending" className="text-slate-600 hover:text-blue-600 transition-colors flex items-center space-x-2 font-bold text-xs md:text-sm uppercase tracking-wider">
+            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-orange-500" />
+            <span className="hidden md:inline">Trending</span>
+          </Link>
+          
+          <Link to="/popular" className="text-slate-600 hover:text-blue-600 transition-colors flex items-center space-x-2 font-bold text-xs md:text-sm uppercase tracking-wider">
+            <Stars className="w-4 h-4 md:w-5 md:h-5 text-pink-500" />
+            <span className="hidden md:inline">Popular</span>
           </Link>
           
           {user ? (
             <>
+              {user.role === 'admin' && (
+                <div className="flex items-center space-x-2 border-l border-slate-100 pl-4">
+                  <Link to="/admin/dashboard" className="p-2 md:p-2.5 rounded-xl bg-slate-100 text-blue-600 hover:bg-blue-50 transition-all border border-slate-200 shadow-sm group" title="Admin Dashboard">
+                    <BarChart3 className="w-4 h-4 md:w-5 md:h-5" />
+                  </Link>
+                  <Link to="/admin/add-shayri" className="p-2 md:p-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 group" title="Add New Shayri">
+                    <PlusCircle className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-90 transition-transform duration-300" />
+                  </Link>
+                </div>
+              )}
               <Link to="/favorites" className="text-slate-600 hover:text-blue-600 transition-colors flex items-center space-x-2 font-bold text-xs md:text-sm uppercase tracking-wider">
                 <Heart className="w-4 h-4 md:w-5 md:h-5" />
                 <span className="hidden md:inline">Favorites</span>

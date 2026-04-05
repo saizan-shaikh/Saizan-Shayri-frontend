@@ -15,6 +15,11 @@ import IqbalPage from './pages/IqbalPage';
 import FaizPage from './pages/FaizPage';
 import MirPage from './pages/MirPage';
 import RahatPage from './pages/RahatPage';
+import AddShayri from './pages/AddShayri';
+import EditShayri from './pages/EditShayri';
+import Trending from './pages/Trending';
+import Popular from './pages/Popular';
+import AdminDashboard from './pages/AdminDashboard';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 
@@ -34,6 +39,22 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+    </div>
+  );
+  
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
+
 function App() {
   return (
     <Router>
@@ -46,6 +67,15 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                
+                {/* Analytics & Discovery */}
+                <Route path="/trending" element={<ProtectedRoute><Trending /></ProtectedRoute>} />
+                <Route path="/popular" element={<ProtectedRoute><Popular /></ProtectedRoute>} />
+                
+                {/* Admin-Only Routes */}
+                <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+                <Route path="/admin/add-shayri" element={<AdminRoute><AddShayri /></AdminRoute>} />
+                <Route path="/admin/edit-shayri/:id" element={<AdminRoute><EditShayri /></AdminRoute>} />
                 
                 {/* Individual Configured Routes for Poets */}
                 <Route path="/ghalib" element={<ProtectedRoute><GhalibPage /></ProtectedRoute>} />

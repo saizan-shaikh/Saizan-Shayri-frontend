@@ -2,53 +2,87 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ChevronLeft, ChevronRight, Quote, Sparkles } from 'lucide-react';
+import axios from 'axios';
 import ShayriCard from '../components/ShayriCard';
-
-const rahatData = [
-  { _id: "650000000000000000003001", text: "Bulati hai magar jaane ka nahi,\nYe duniya hai idhar jaane ka nahi.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003002", text: "Kisi ke baap ka Hindustan thodi hai,\nJo tum ho to kya hua ye watan tumhara thodi hai.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003003", text: "Sabhi ka khoon hai shaamil yahan ki mitti mein,\nKisi ke baap ka Hindustan thodi hai.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003004", text: "Aankh mein pani rakho honton pe chingari rakho,\nZinda rehna hai to tarkeebein bohot saari rakho.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003005", text: "Jo aaj sahib-e-masnad hain kal nahi honge,\nKirayedaar hain zaati makan thodi hai.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003006", text: "Sarhadon par bohot tanav hai kya,\nKuch pata to karo chunav hai kya.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003007", text: "Naye kirdaar aate ja rahe hain,\nMagar natak purana chal raha hai.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003008", text: "Main jab mar jaun to meri alag pehchaan likh dena,\nLahu se meri peshani pe Hindustan likh dena.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003009", text: "Lagta hai ke ab kuch badalne wala hai,\nYe hawa ka rukh bhi badalne wala hai.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003010", text: "Har ek baat pe kehte ho tum ke tu kya hai,\nTumhi kaho ke ye andaaz-e-guftagu kya hai.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003011", text: "Roz taaron ko numaish mein khalal padta hai,\nChand pagal hai andhere mein nikal padta hai.", poet: "Rahat Indori", category: "love" },
-  { _id: "650000000000000000003012", text: "Main ne apni khushk aankhon se lahu chhalka diya,\nEk samandar keh raha tha mujh ko pani chahiye.", poet: "Rahat Indori", category: "dard" },
-  { _id: "650000000000000000003013", text: "Zameen jal rahi hai aasman bhi jal raha hai,\nYe kaisa waqt hai insaan bhi jal raha hai.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003014", text: "Dosti jab kisi se ki jaaye,\nDushmanon ki bhi raaye li jaaye.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003015", text: "Log har mod pe ruk ruk ke sambhalte kyun hain,\nItna darte hain to phir ghar se nikalte kyun hain.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003016", text: "Aaj hum dono ko fursat hai chalo ishq karein,\nIshq dono ki zarurat hai chalo ishq karein.", poet: "Rahat Indori", category: "love" },
-  { _id: "650000000000000000003017", text: "Main ne apni zindagi ka safar yun hi nahi kiya,\nHar mod pe kuch seekha hai kuch khona pada hai.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003018", text: "Kabhi mehkega ye gulshan bhi baharon ki tarah,\nAaj ke baad ye mausam nahi rehne wala.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003019", text: "Main ne har dard ko dil se lagaya hai,\nTab kahin jaake ye andaaz banaya hai.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003020", text: "Jo log yahan se guzarte hain nishaan chhod jaate hain,\nKuch yaadein ban jaate hain kuch kahani ban jaate hain.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003021", text: "Dil mein junoon ho to raaste khud ban jaate hain,\nVarna har mod pe insaan ruk jaata hai.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003022", text: "Har ek chehra yahan pehchaan ka mohtaj hai,\nIs shehar mein har xakhs thoda sa akela hai.", poet: "Rahat Indori", category: "dard" },
-  { _id: "650000000000000000003023", text: "Sach bolne ki aadat mehngi padti hai,\nLog jhooth sunna zyada pasand karte hain.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003024", text: "Zindagi ki raah mein mushkilein to aayengi,\nPar hausla ho to manzil mil hi jaati hai.", poet: "Rahat Indori", category: "attitude" },
-  { _id: "650000000000000000003025", text: "Dil ko sambhalna bhi ek hunar hai,\nHar koi is ka kaam nahi karta.", poet: "Rahat Indori", category: "dard" },
-  { _id: "650000000000000000003026", text: "Mohabbat mein har cheez hasil nahi hoti,\nKabhi kabhi sirf yaadein reh jaati hain.", poet: "Rahat Indori", category: "love" },
-  { _id: "650000000000000000003027", text: "Waqt ke saath log badal jaate hain,\nPar kuch zakhm kabhi nahi bharte.", poet: "Rahat Indori", category: "dard" },
-  { _id: "650000000000000000003028", text: "Har kisi ko apni kahani sunani hoti hai,\nPar sunne wala koi nahi hota.", poet: "Rahat Indori", category: "dard" },
-  { _id: "650000000000000000003029", text: "Zindagi ek kitaab hai jise samajhna mushkil hai,\nHar panna ek naya imtihaan hota hai.", poet: "Rahat Indori", category: "philosophy" },
-  { _id: "650000000000000000003030", text: "Insaan ko pehchanna asaan nahi hota,\nHar chehra ek naya raaz chhupa hota hai.", poet: "Rahat Indori", category: "philosophy" }
-];
-
-const poetImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThKYeSDNDOdRcLeQYZhaLlRnAVF2f_a3Bi4w&s";
+import LifeAdvice from '../components/LifeAdvice';
+import BASE_URL from '../config/api';
 
 const RahatPage = () => {
   const [shayris, setShayris] = useState([]);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [count, setCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const pageSize = 4;
-  const pages = Math.ceil(rahatData.length / pageSize);
+  
+  const poetName = "Rahat Indori";
+  const poetImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThKYeSDNDOdRcLeQYZhaLlRnAVF2f_a3Bi4w&s";
+
+  const fetchShayris = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`${BASE_URL}/shayri/poet/${poetName}?pageNumber=${page}`);
+      setShayris(data.shayris);
+      setCount(data.count);
+      
+      // Dynamic Pagination Logic for LifeAdvice
+      const lastPageItems = data.count % pageSize;
+      const basePages = data.pages;
+      const computedTotal = (lastPageItems === 3 || lastPageItems === 0) ? basePages + 1 : basePages;
+      setTotalPages(computedTotal);
+      
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to load verses. Please try again later.");
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const startIndex = (page - 1) * pageSize;
-    setShayris(rahatData.slice(startIndex, startIndex + pageSize));
+    fetchShayris();
   }, [page]);
+
+  const handleDeleteShayri = (id) => {
+    setShayris(prev => prev.filter(s => s._id !== id));
+    setCount(prev => prev - 1);
+    // If the page becomes empty after deletion, move to the previous page
+    if (shayris.length === 1 && page > 1) {
+      setPage(p => p - 1);
+    } else {
+      // Re-fetch to pull the next item from the next page into this one if necessary
+      fetchShayris();
+    }
+  };
+
+  const adviceConfig = {
+    title: "Fiery Spirit",
+    verses: [
+      { text: "Aankh mein pani rakho honton pe chingari rakho...", subtext: "Keep compassion in your eyes, but fire on your lips" },
+      { text: "Log har mod pe ruk ruk ke sambhalte kyun hain.", subtext: "Why fear the journey when you've already stepped out?" }
+    ],
+    gradient: "from-red-600 via-orange-500 to-amber-400",
+    themeColor: "text-red-600",
+    tagLine: "The Rahat Indori Legacy"
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Fetching Verses...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4 text-center px-4">
+        <p className="text-red-500 font-bold">{error}</p>
+        <button onClick={() => window.location.reload()} className="px-6 py-2 bg-blue-600 text-white rounded-xl font-bold">Try Refreshing</button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 md:space-y-12 pb-20">
@@ -61,72 +95,40 @@ const RahatPage = () => {
           <span>Poets Gallery</span>
         </Link>
         <div className="md:text-right z-10">
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase">Rahat Indori</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase">{poetName}</h1>
           <p className="text-blue-600 font-bold text-sm tracking-widest uppercase mt-1">Gems of Literature</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-8">
         <AnimatePresence mode="popLayout">
-          {shayris.map((shayri, index) => (
-            <motion.div
-              key={shayri._id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <ShayriCard shayri={shayri} poetImage={poetImage} />
-            </motion.div>
-          ))}
+          {shayris.length > 0 ? (
+            shayris.map((shayri, index) => (
+              <motion.div
+                key={shayri._id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <ShayriCard 
+                  shayri={shayri} 
+                  poetImage={poetImage} 
+                  onDelete={handleDeleteShayri}
+                />
+              </motion.div>
+            ))
+          ) : (
+            null // Empty on extra Advice page
+          )}
         </AnimatePresence>
       </div>
 
-      {page === 8 && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-12 p-0.5 bg-gradient-to-br from-red-600 via-orange-500 to-amber-400 rounded-[2.5rem] shadow-xl shadow-red-100/50"
-        >
-          <div className="bg-white rounded-[2.45rem] p-10 md:p-12 text-center space-y-6 relative overflow-hidden">
-            <Sparkles className="w-12 h-12 text-red-500/10 absolute top-8 left-8" />
-            <Sparkles className="w-12 h-12 text-red-500/10 absolute bottom-8 right-8" />
-            
-            <div className="space-y-4">
-              <span className="px-4 py-1.5 rounded-full bg-red-50 text-red-600 text-xs font-black uppercase tracking-[0.3em]">
-                Life Advice • Nasihat
-              </span>
-              <h2 className="text-4xl font-black text-slate-900 italic tracking-tight">
-                "Fiery Spirit"
-              </h2>
-            </div>
-
-            <div className="space-y-10 max-w-4xl mx-auto py-6">
-              <div className="space-y-3 group cursor-default">
-                <p className="text-2xl md:text-3xl font-black text-slate-800 group-hover:text-red-500 transition-colors leading-tight">
-                  "Aankh mein pani rakho honton pe chingari rakho..."
-                </p>
-                <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest">— Keep compassion in your eyes, but fire on your lips</p>
-              </div>
-              
-              <div className="w-16 h-1 bg-slate-100 mx-auto rounded-full" />
-              
-              <div className="space-y-3 group cursor-default">
-                <p className="text-2xl md:text-3xl font-black text-slate-800 group-hover:text-red-500 transition-colors leading-tight">
-                  "Log har mod pe ruk ruk ke sambhalte kyun hain."
-                </p>
-                <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest">— Why fear the journey when you've already stepped out?</p>
-              </div>
-            </div>
-
-            <p className="text-[10px] font-black text-red-600/30 uppercase tracking-[0.5em] pt-6">
-              The Rahat Indori Legacy
-            </p>
-          </div>
-        </motion.div>
+      {page === totalPages && (
+        <LifeAdvice {...adviceConfig} />
       )}
 
-      {pages > 1 && (
+      {totalPages > 1 && (
         <div className="flex justify-center items-center space-x-3 md:space-x-6 py-6 md:py-12">
           <button 
             onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -139,7 +141,7 @@ const RahatPage = () => {
           <div className="flex items-center space-x-1.5 md:space-x-2">
             {(() => {
               const start = Math.floor((page - 1) / 3) * 3 + 1;
-              const end = Math.min(start + 2, pages);
+              const end = Math.min(start + 2, totalPages);
               const pageNumbers = [];
               for (let i = start; i <= end; i++) {
                 pageNumbers.push(i);
@@ -166,7 +168,7 @@ const RahatPage = () => {
                       {n}
                     </button>
                   ))}
-                  {end < pages && (
+                  {end < totalPages && (
                       <button
                       onClick={() => setPage(end + 1)}
                       className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-black bg-white border border-slate-100 text-slate-400 hover:bg-slate-50"
@@ -180,8 +182,8 @@ const RahatPage = () => {
           </div>
 
           <button 
-            onClick={() => setPage(p => Math.min(pages, p + 1))}
-            disabled={page === pages}
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
             className="p-3 md:p-4 rounded-xl md:rounded-2xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
           >
             <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
