@@ -67,41 +67,31 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Right Column: Author Info (Hidden on Mobile) */}
-          <div className="space-y-4 md:space-y-6 hidden md:block">
-            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-900 text-center md:text-left">Author Info</h4>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex items-start space-x-4">
-                <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-slate-900 font-black text-sm text-left">Saizan Shaikh</p>
-                  <p className="text-slate-500 text-xs font-medium text-left">Ahmedabad, Gujarat</p>
-                </div>
+          {/* Right Column: Author Branding (Hidden on Mobile, Redesigned for Desktop) */}
+          <div className="hidden md:flex flex-col items-end justify-center">
+            <div className="space-y-4 bg-slate-50/50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all duration-500 w-full max-w-[280px]">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600/50">Project Lead</h4>
+              <div className="space-y-1">
+                <p className="text-2xl font-black tracking-tighter text-slate-900 uppercase">
+                  Saizan <span className="text-blue-600 text-3xl block -mt-2">Shaikh</span>
+                </p>
+                <div className="w-8 h-1 bg-blue-600 rounded-full" />
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-                  <Phone className="w-5 h-5" />
-                </div>
-                <p className="text-slate-900 font-black text-sm">+91 9026278246</p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <p className="text-slate-900 font-black text-sm break-all">contact@shayribook.com</p>
-              </div>
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                Full-Stack Developer & <br />
+                Poetry Enthusiast
+              </p>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-slate-400 text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-center md:text-left">
-          <p>&copy; {currentYear} Shayri Book. Created with <Heart className="w-3 h-3 text-pink-500 inline-block mx-1 fill-current" /> by Saizan Shaikh</p>
-          <div className="flex items-center space-x-4 md:space-x-6">
+          <p>&copy; {currentYear} Shayri Book. Created with <Heart className="w-3 h-3 text-pink-500 inline-block mx-1 fill-current" /> by <span className="text-slate-900 font-black">Saizan Shaikh</span></p>
+          <div className="flex items-center space-x-4 md:space-x-8">
              <span className="hover:text-blue-600 cursor-pointer transition-colors">Privacy</span>
              <span className="hover:text-blue-600 cursor-pointer transition-colors">Terms</span>
+             <span className="hover:text-blue-600 cursor-pointer transition-colors">Support</span>
           </div>
         </div>
       </div>
