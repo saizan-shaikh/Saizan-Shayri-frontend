@@ -56,17 +56,16 @@ const Navbar = () => {
               <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
               <span className="hidden md:inline">Home</span>
             </Link>
+
+            {user?.role === 'admin' && (
+              <Link to="/admin/add-shayri" className="p-2 md:p-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 group" title="Add New Shayri">
+                <PlusCircle className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-90 transition-transform duration-300" />
+              </Link>
+            )}
             
             {user ? (
               <>
-                {user.role === 'admin' && (
-                  <div className="flex items-center space-x-2 border-l border-slate-100 pl-4">
-                    <Link to="/admin/add-shayri" className="p-2 md:p-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 group" title="Add New Shayri">
-                      <PlusCircle className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-90 transition-transform duration-300" />
-                    </Link>
-                  </div>
-                )}
-                <Link to="/favorites" className="text-slate-600 hover:text-blue-600 transition-colors flex items-center space-x-2 font-bold text-xs md:text-sm uppercase tracking-wider">
+                <Link to="/favorites" className="text-slate-600 hover:text-blue-600 transition-colors flex items-center space-x-2 font-bold text-xs md:text-sm uppercase tracking-wide">
                   <Heart className="w-4 h-4 md:w-5 md:h-5" />
                   <span className="hidden md:inline">Favorites</span>
                 </Link>
