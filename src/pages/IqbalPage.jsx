@@ -91,10 +91,19 @@ const IqbalPage = () => {
         <div className="absolute top-0 right-0 p-4 opacity-5">
            <Quote className="w-32 h-32 text-slate-200" />
         </div>
-        <Link to="/" className="flex items-center space-x-2 text-slate-500 hover:text-blue-600 transition-all group font-bold uppercase tracking-wider text-xs z-10">
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span>Poets Gallery</span>
-        </Link>
+        <div className="flex flex-col space-y-4 z-10">
+          <Link to="/" className="flex items-center space-x-2 text-slate-500 hover:text-blue-600 transition-all group font-bold uppercase tracking-wider text-xs">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span>Poets Gallery</span>
+          </Link>
+          <Link 
+            to={`/add-shayri?poet=${encodeURIComponent(poetName)}`}
+            className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-all font-black uppercase tracking-widest text-[10px] bg-blue-50 px-4 py-2 rounded-xl w-fit border border-blue-100 shadow-sm hover:shadow-md active:scale-95"
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>Add {poetName} Shayri</span>
+          </Link>
+        </div>
         <div className="md:text-right z-10">
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase">{poetName}</h1>
           <p className="text-blue-600 font-bold text-sm tracking-widest uppercase mt-1">Gems of Literature</p>

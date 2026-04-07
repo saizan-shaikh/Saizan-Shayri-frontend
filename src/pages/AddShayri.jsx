@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { PlusCircle, Send, User, Tag, BookOpen, ArrowLeft } from 'lucide-react';
@@ -8,15 +7,17 @@ import { motion } from 'framer-motion';
 import BASE_URL from '../config/api';
 
 const AddShayri = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     text: '',
-    poet: '',
+    poet: searchParams.get('poet') || '',
     category: '',
     language: 'roman'
   });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
-  const navigate = useNavigate();
 
   const poets = [
     "Mirza Ghalib", "Jaun Elia", "Allama Iqbal", 
@@ -41,15 +42,17 @@ const AddShayri = () => {
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${BASE_URL}/admin/shayri`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.post(`${BASE_URL}/admin/shayri`, formData);
 
       toast.success('Shayri added successfully!');
       
-      // Reset form so admin can add more
-      setFormData({ text: '', poet: '', category: '', language: 'roman' });
+      // Reset form but keep the poet if it was pre-selected
+      setFormData({ 
+        text: '', 
+        poet: searchParams.get('poet') || '', 
+        category: '', 
+        language: 'roman' 
+      });
       
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Failed to add Shayri';
@@ -81,8 +84,8 @@ const AddShayri = () => {
               <PlusCircle className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">Add New <span className="text-blue-600">Shayri</span></h2>
-              <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mt-1">Admin Management Console</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight">Post Your <span className="text-blue-600">Shayri</span></h2>
+              <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mt-1">Contribute to the Book</p>
             </div>
           </div>
 
