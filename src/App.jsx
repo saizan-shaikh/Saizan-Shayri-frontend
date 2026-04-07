@@ -26,7 +26,7 @@ function App() {
         <FavoritesProvider>
           <div className="flex flex-col min-h-screen bg-[#f8fafc]">
             <Navbar />
-            <main className="flex-grow container mx-auto px-4 py-8">
+            <main className="flex-grow max-w-[1400px] mx-auto w-full px-4 py-8">
               <Routes>
                 <Route path="/" element={<Home />} />
                 

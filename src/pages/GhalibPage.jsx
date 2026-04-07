@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Quote, Sparkles } from 'lucide-re
 import axios from 'axios';
 import ShayriCard from '../components/ShayriCard';
 import LifeAdvice from '../components/LifeAdvice';
+import { poetsStaticData } from '../data/poetData';
 import BASE_URL from '../config/api';
 
 const GhalibPage = () => {
@@ -23,16 +24,30 @@ const GhalibPage = () => {
     setLoading(true);
     try {
       const { data } = await axios.get(`${BASE_URL}/shayri/poet/${poetName}?pageNumber=${page}`);
-      setShayris(data.shayris);
-      setCount(data.count);
       
-      const totalShayaris = data.count;
-      const total = (totalShayaris % pageSize === 0) ? (totalShayaris / pageSize) + 1 : Math.ceil(totalShayaris / pageSize);
-      setTotalPages(total || 1);
-      
+      if (data.shayris && data.shayris.length > 0) {
+        setShayris(data.shayris);
+        setCount(data.count);
+        const total = (data.count % pageSize === 0) ? (data.count / pageSize) + 1 : Math.ceil(data.count / pageSize);
+        setTotalPages(total || 1);
+      } else {
+        // Fallback to static data
+        const staticData = poetsStaticData[poetName] || [];
+        const startIndex = (page - 1) * pageSize;
+        setShayris(staticData.slice(startIndex, startIndex + pageSize).map((text, idx) => ({ _id: `static-${idx}`, text, poet: poetName, category: "general" })));
+        setCount(staticData.length);
+        const total = (staticData.length % pageSize === 0) ? (staticData.length / pageSize) + 1 : Math.ceil(staticData.length / pageSize);
+        setTotalPages(total || 1);
+      }
       setLoading(false);
     } catch (err) {
-      setError("Failed to load verses. Please try again later.");
+      console.error("API error, using static fallback");
+      const staticData = poetsStaticData[poetName] || [];
+      const startIndex = (page - 1) * pageSize;
+      setShayris(staticData.slice(startIndex, startIndex + pageSize).map((text, idx) => ({ _id: `static-${idx}`, text, poet: poetName, category: "general" })));
+      setCount(staticData.length);
+      const total = (staticData.length % pageSize === 0) ? (staticData.length / pageSize) + 1 : Math.ceil(staticData.length / pageSize);
+      setTotalPages(total || 1);
       setLoading(false);
     }
   };
@@ -101,7 +116,7 @@ const GhalibPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
         <AnimatePresence mode="popLayout">
           {shayris.length > 0 && shayris.map((shayri, index) => (
             <motion.div
@@ -121,7 +136,7 @@ const GhalibPage = () => {
         </AnimatePresence>
       </div>
 
-      {page === totalPages && (
+      {shayris.length > 0 && page === totalPages && (
         <LifeAdvice {...adviceConfig} />
       )}
 

@@ -69,8 +69,8 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage, onDelete }) => {
       layout
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ y: -3 }}
-      className="glass rounded-2xl p-4 md:p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 flex flex-col justify-between h-full bg-white/70 min-h-[240px] md:min-h-0 md:aspect-auto group"
+      whileHover={{ y: -5 }}
+      className="glass rounded-[2.5rem] p-8 md:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 flex flex-col justify-between h-full bg-white/80 min-h-[400px] group"
     >
       <div className="space-y-3 md:space-y-4 flex-grow flex flex-col">
         <div className="flex justify-between items-start flex-shrink-0">
@@ -143,7 +143,7 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage, onDelete }) => {
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
-              className={`text-xs sm:text-sm md:text-base font-bold tracking-tight leading-loose text-slate-800 ${lang === 'urdu' ? 'font-serif' : ''} text-center w-full break-words overflow-wrap-anywhere`}
+              className={`text-sm sm:text-base md:text-xl font-bold tracking-tight leading-loose text-slate-800 ${lang === 'urdu' ? 'font-serif' : ''} text-center w-full break-words overflow-wrap-anywhere`}
               dir={lang === 'urdu' ? 'rtl' : 'ltr'}
             >
               {transliterate(shayri.text, lang)}
