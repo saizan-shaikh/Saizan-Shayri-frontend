@@ -45,6 +45,7 @@ const MirPage = () => {
       const allMerged = [...backendShayris, ...localShayris, ...staticData];
       const seen = new Set();
       const uniqueShayris = allMerged.filter(item => {
+        if (!item || typeof item.text !== 'string') return false;
         const textKey = item.text.trim().toLowerCase();
         if (seen.has(textKey)) return false;
         seen.add(textKey);
@@ -79,6 +80,7 @@ const MirPage = () => {
       
       const seen = new Set();
       const unique = combined.filter(item => {
+        if (!item || typeof item.text !== 'string') return false;
         const key = item.text.trim().toLowerCase();
         if (seen.has(key)) return false;
         seen.add(key);
