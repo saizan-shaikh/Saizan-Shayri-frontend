@@ -14,7 +14,7 @@ const RahatPage = () => {
   const [error, setError] = useState(null);
   const [count, setCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 30;
+  const pageSize = 4;
   
   const poetName = "Rahat Indori";
   const poetImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThKYeSDNDOdRcLeQYZhaLlRnAVF2f_a3Bi4w&s";
@@ -26,9 +26,9 @@ const RahatPage = () => {
       setShayris(data.shayris);
       setCount(data.count);
       
-      const contentPages = Math.ceil(data.count / pageSize);
-      const total = data.count > 0 ? Math.max(8, contentPages + 1) : 8;
-      setTotalPages(total);
+      const totalShayaris = data.count;
+      const total = (totalShayaris % pageSize === 0) ? (totalShayaris / pageSize) + 1 : Math.ceil(totalShayaris / pageSize);
+      setTotalPages(total || 1);
       
       setLoading(false);
     } catch (err) {
