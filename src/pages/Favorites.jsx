@@ -1,29 +1,12 @@
 import React from 'react';
 import { useFavorites } from '../context/FavoritesContext';
-import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, BookOpen, UserMinus } from 'lucide-react';
+import { Heart, BookOpen } from 'lucide-react';
 import ShayriCard from '../components/ShayriCard';
 
 const Favorites = () => {
   const { favorites } = useFavorites();
-  const { user } = useAuth();
-
-  if (!user) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center space-y-6">
-        <Heart className="w-16 h-16 text-slate-200" />
-        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Login to see your collection</h2>
-        <Link 
-          to="/login"
-          className="primary-btn"
-        >
-          Take Me to Login
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-12">

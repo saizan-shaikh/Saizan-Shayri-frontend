@@ -14,7 +14,7 @@ const RahatPage = () => {
   const [error, setError] = useState(null);
   const [count, setCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 4;
+  const pageSize = 30;
   
   const poetName = "Rahat Indori";
   const poetImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThKYeSDNDOdRcLeQYZhaLlRnAVF2f_a3Bi4w&s";
@@ -26,12 +26,9 @@ const RahatPage = () => {
       setShayris(data.shayris);
       setCount(data.count);
       
-      // Dynamic Pagination Logic for LifeAdvice
-      const lastPageItems = data.count % pageSize;
-      const basePages = data.pages;
-      // Requirement: If 3rd shayari is added on a page -> move Life Advice to NEXT page
-      const computedTotal = (lastPageItems >= 3 || lastPageItems === 0) && data.count > 0 ? basePages + 1 : basePages;
-      setTotalPages(computedTotal);
+      const contentPages = Math.ceil(data.count / pageSize);
+      const total = data.count > 0 ? Math.max(8, contentPages + 1) : 8;
+      setTotalPages(total);
       
       setLoading(false);
     } catch (err) {
@@ -47,13 +44,7 @@ const RahatPage = () => {
   const handleDeleteShayri = (id) => {
     setShayris(prev => prev.filter(s => s._id !== id));
     setCount(prev => prev - 1);
-    // If the page becomes empty after deletion, move to the previous page
-    if (shayris.length === 1 && page > 1) {
-      setPage(p => p - 1);
-    } else {
-      // Re-fetch to pull the next item from the next page into this one if necessary
-      fetchShayris();
-    }
+    fetchShayris();
   };
 
   const adviceConfig = {
@@ -110,27 +101,23 @@ const RahatPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         <AnimatePresence mode="popLayout">
-          {shayris.length > 0 ? (
-            shayris.map((shayri, index) => (
-              <motion.div
-                key={shayri._id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <ShayriCard 
-                  shayri={shayri} 
-                  poetImage={poetImage} 
-                  onDelete={handleDeleteShayri}
-                />
-              </motion.div>
-            ))
-          ) : (
-            null // Empty on extra Advice page
-          )}
+          {shayris.length > 0 && shayris.map((shayri, index) => (
+            <motion.div
+              key={shayri._id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ delay: index * 0.02 }}
+            >
+              <ShayriCard 
+                shayri={shayri} 
+                poetImage={poetImage} 
+                onDelete={handleDeleteShayri}
+              />
+            </motion.div>
+          ))}
         </AnimatePresence>
       </div>
 
@@ -139,64 +126,38 @@ const RahatPage = () => {
       )}
 
       {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-3 md:space-x-6 py-6 md:py-12">
+        <div className="flex justify-center items-center space-x-2 md:space-x-4 py-6 md:py-12">
           <button 
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="p-3 md:p-4 rounded-xl md:rounded-2xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
+            className="p-2 md:p-3 rounded-lg md:rounded-xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
           >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
           
-          <div className="flex items-center space-x-1.5 md:space-x-2">
-            {(() => {
-              const start = Math.floor((page - 1) / 3) * 3 + 1;
-              const end = Math.min(start + 2, totalPages);
-              const pageNumbers = [];
-              for (let i = start; i <= end; i++) {
-                pageNumbers.push(i);
-              }
-              
+          <div className="flex items-center space-x-1 md:space-x-2">
+            {[...Array(totalPages)].map((_, i) => {
+              const n = i + 1;
               return (
-                <>
-                  {start > 1 && (
-                      <button
-                      onClick={() => setPage(start - 1)}
-                      className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-black bg-white border border-slate-100 text-slate-400 hover:bg-slate-50"
-                      >
-                        ...
-                      </button>
-                  )}
-                  {pageNumbers.map(n => (
-                    <button
-                      key={n}
-                      onClick={() => setPage(n)}
-                      className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-black transition-all ${
-                        page === n ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white border border-slate-100 hover:bg-slate-50 text-slate-400'
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                  {end < totalPages && (
-                      <button
-                      onClick={() => setPage(end + 1)}
-                      className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-black bg-white border border-slate-100 text-slate-400 hover:bg-slate-50"
-                      >
-                        {">"}
-                      </button>
-                  )}
-                </>
-              )
-            })()}
+                <button
+                  key={n}
+                  onClick={() => setPage(n)}
+                  className={`w-8 h-8 md:w-10 md:h-10 rounded-md md:rounded-lg flex items-center justify-center font-bold text-xs md:text-sm transition-all ${
+                    page === n ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-100 hover:bg-slate-50 text-slate-400'
+                  }`}
+                >
+                  {n}
+                </button>
+              );
+            })}
           </div>
 
           <button 
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="p-3 md:p-4 rounded-xl md:rounded-2xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
+            className="p-2 md:p-3 rounded-lg md:rounded-xl bg-white border border-slate-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90 shadow-sm"
           >
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       )}

@@ -14,7 +14,6 @@ import FaizPage from './pages/FaizPage';
 import MirPage from './pages/MirPage';
 import RahatPage from './pages/RahatPage';
 import AddShayri from './pages/AddShayri';
-import EditShayri from './pages/EditShayri';
 import Trending from './pages/Trending';
 import Popular from './pages/Popular';
 import { AuthProvider } from './context/AuthContext';
@@ -33,7 +32,7 @@ function App() {
                 
                 {/* Public Contribution Routes */}
                 <Route path="/add-shayri" element={<AddShayri />} />
-                <Route path="/edit-shayri/:id" element={<EditShayri />} />
+                <Route path="/edit-shayri/:id" element={<AddShayri />} />
                 
                 {/* Individual Configured Routes for Poets */}
                 <Route path="/ghalib" element={<GhalibPage />} />
