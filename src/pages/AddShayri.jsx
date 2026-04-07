@@ -71,7 +71,14 @@ const AddShayri = () => {
         toast.success('Shayri updated successfully!');
         setTimeout(() => navigate(-1), 1500);
       } else {
-        await axios.post(`${BASE_URL}/admin/shayri`, formData);
+        const { data: newShayari } = await axios.post(`${BASE_URL}/admin/shayri`, formData);
+        
+        // Persist to localStorage for immediate data-merging on poet pages
+        const STORAGE_KEY = `user_shayaris_${formData.poet.toLowerCase().replace(/\s+/g, '_')}`;
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        const updated = [...existing, newShayari];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        
         toast.success('Shayri added successfully!');
         setFormData({ 
           text: '', 

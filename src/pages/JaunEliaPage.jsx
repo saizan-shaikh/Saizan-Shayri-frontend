@@ -23,49 +23,73 @@ const JaunEliaPage = () => {
   const fetchShayris = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${BASE_URL}/shayri/poet/${poetName}?pageNumber=${page}`);
+      // 1. Fetch ALL backend Shayaris for this poet
+      const { data } = await axios.get(`${BASE_URL}/shayri/poet/${poetName}?limit=all`);
+      const backendShayris = data.shayris || [];
       
-      if (data.shayris && data.shayris.length > 0) {
-        setShayris(data.shayris);
-        setCount(data.count);
-        
-        const remainder = data.count % pageSize;
-        let total;
-        if (data.count === 0) {
-          total = 0;
-        } else if (remainder === 0 || remainder === 3) {
-          total = Math.ceil(data.count / pageSize) + 1;
-        } else {
-          total = Math.ceil(data.count / pageSize);
-        }
-        setTotalPages(total || 1);
+      // 2. Load poet-specific items from localStorage
+      const STORAGE_KEY = `user_shayaris_${poetName.toLowerCase().replace(/\s+/g, '_')}`;
+      const localShayris = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      
+      // 3. Combine with static data
+      const staticData = (poetsStaticData[poetName] || []).map((text, idx) => ({ 
+        _id: `static-${idx}`, 
+        text, 
+        poet: poetName, 
+        category: "general" 
+      }));
+      
+      // 4. Merge and Deduplicate by text
+      const allMerged = [...backendShayris, ...localShayris, ...staticData];
+      const seen = new Set();
+      const uniqueShayris = allMerged.filter(item => {
+        const textKey = item.text.trim().toLowerCase();
+        if (seen.has(textKey)) return false;
+        seen.add(textKey);
+        return true;
+      });
+
+      // 5. Update State
+      setCount(uniqueShayris.length);
+      
+      // Refined Life Advice logic:
+      const remainder = uniqueShayris.length % pageSize;
+      let total;
+      if (uniqueShayris.length === 0) {
+        total = 0;
+      } else if (remainder === 0 || remainder === 3) {
+        total = Math.ceil(uniqueShayris.length / pageSize) + 1;
       } else {
-        // Fallback to static data
-        const staticData = poetsStaticData[poetName] || [];
-        const startIndex = (page - 1) * pageSize;
-        setShayris(staticData.slice(startIndex, startIndex + pageSize).map((text, idx) => ({ _id: `static-${idx}`, text, poet: poetName, category: "general" })));
-        setCount(staticData.length);
-        
-        const remainder = staticData.length % pageSize;
-        let total;
-        if (staticData.length === 0) {
-          total = 0;
-        } else if (remainder === 0 || remainder === 3) {
-          total = Math.ceil(staticData.length / pageSize) + 1;
-        } else {
-          total = Math.ceil(staticData.length / pageSize);
-        }
-        setTotalPages(total || 1);
+        total = Math.ceil(uniqueShayris.length / pageSize);
       }
+      setTotalPages(total || 1);
+      
+      // 6. Slice for current page
+      const startIndex = (page - 1) * pageSize;
+      setShayris(uniqueShayris.slice(startIndex, startIndex + pageSize));
+      
       setLoading(false);
     } catch (err) {
-      console.error("API error, using static fallback");
-      const staticData = poetsStaticData[poetName] || [];
-      const startIndex = (page - 1) * pageSize;
-      setShayris(staticData.slice(startIndex, startIndex + pageSize).map((text, idx) => ({ _id: `static-${idx}`, text, poet: poetName, category: "general" })));
-      setCount(staticData.length);
-      const total = (staticData.length % pageSize === 0) ? (staticData.length / pageSize) + 1 : Math.ceil(staticData.length / pageSize);
+      console.error("Fetch error, using static + local fallback");
+      const staticData = (poetsStaticData[poetName] || []).map((text, idx) => ({ _id: `static-${idx}`, text, poet: poetName, category: "general" }));
+      const localShayris = JSON.parse(localStorage.getItem(`user_shayaris_${poetName.toLowerCase().replace(/\s+/g, '_')}`)) || [];
+      const combined = [...localShayris, ...staticData];
+      
+      const seen = new Set();
+      const unique = combined.filter(item => {
+        const key = item.text.trim().toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      setCount(unique.length);
+      const remainder = unique.length % pageSize;
+      const total = (unique.length === 0) ? 0 : (remainder === 0 || remainder === 3) ? Math.ceil(unique.length / pageSize) + 1 : Math.ceil(unique.length / pageSize);
       setTotalPages(total || 1);
+      
+      const startIndex = (page - 1) * pageSize;
+      setShayris(unique.slice(startIndex, startIndex + pageSize));
       setLoading(false);
     }
   };
