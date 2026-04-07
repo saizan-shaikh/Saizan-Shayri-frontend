@@ -18,7 +18,7 @@ const IqbalPage = () => {
   const pageSize = 4;
   
   const poetName = "Allama Iqbal";
-  const poetImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz-M8v7_mX7hZ0wz_Z7U7_5yYz9e_9z5D_zA&s";
+  const poetImage = "https://i.pinimg.com/474x/d2/7c/94/d27c9411ecf85794bb0c8f66a98248d9.jpg";
 
   const fetchShayris = async () => {
     setLoading(true);
@@ -28,7 +28,16 @@ const IqbalPage = () => {
       if (data.shayris && data.shayris.length > 0) {
         setShayris(data.shayris);
         setCount(data.count);
-        const total = (data.count % pageSize === 0) ? (data.count / pageSize) + 1 : Math.ceil(data.count / pageSize);
+        
+        const remainder = data.count % pageSize;
+        let total;
+        if (data.count === 0) {
+          total = 0;
+        } else if (remainder === 0 || remainder === 3) {
+          total = Math.ceil(data.count / pageSize) + 1;
+        } else {
+          total = Math.ceil(data.count / pageSize);
+        }
         setTotalPages(total || 1);
       } else {
         // Fallback to static data
@@ -36,7 +45,16 @@ const IqbalPage = () => {
         const startIndex = (page - 1) * pageSize;
         setShayris(staticData.slice(startIndex, startIndex + pageSize).map((text, idx) => ({ _id: `static-${idx}`, text, poet: poetName, category: "general" })));
         setCount(staticData.length);
-        const total = (staticData.length % pageSize === 0) ? (staticData.length / pageSize) + 1 : Math.ceil(staticData.length / pageSize);
+        
+        const remainder = staticData.length % pageSize;
+        let total;
+        if (staticData.length === 0) {
+          total = 0;
+        } else if (remainder === 0 || remainder === 3) {
+          total = Math.ceil(staticData.length / pageSize) + 1;
+        } else {
+          total = Math.ceil(staticData.length / pageSize);
+        }
         setTotalPages(total || 1);
       }
       setLoading(false);

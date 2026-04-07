@@ -28,7 +28,19 @@ const GhalibPage = () => {
       if (data.shayris && data.shayris.length > 0) {
         setShayris(data.shayris);
         setCount(data.count);
-        const total = (data.count % pageSize === 0) ? (data.count / pageSize) + 1 : Math.ceil(data.count / pageSize);
+        
+        // Refined Life Advice logic:
+        // - 1 or 2 Shayaris on last page -> same page
+        // - 3 or 4 Shayaris on last page -> next page
+        const remainder = data.count % pageSize;
+        let total;
+        if (data.count === 0) {
+          total = 0;
+        } else if (remainder === 0 || remainder === 3) {
+          total = Math.ceil(data.count / pageSize) + 1;
+        } else {
+          total = Math.ceil(data.count / pageSize);
+        }
         setTotalPages(total || 1);
       } else {
         // Fallback to static data
