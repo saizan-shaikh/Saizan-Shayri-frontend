@@ -9,11 +9,10 @@ import { poetsStaticData } from '../data/poetData';
 import BASE_URL from '../config/api';
 
 const RahatPage = () => {
-  const [shayris, setShayris] = useState([]);
+  const [allShayris, setAllShayris] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [count, setCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 4;
   
@@ -23,15 +22,15 @@ const RahatPage = () => {
   const fetchShayris = async () => {
     setLoading(true);
     try {
-      // 1. Fetch ALL backend Shayaris for this poet
+      // 1. Fetch Backend Shayaris
       const { data } = await axios.get(`${BASE_URL}/shayri/poet/${poetName}?limit=all`);
       const backendShayris = data.shayris || [];
       
-      // 2. Load poet-specific items from localStorage
+      // 2. Load LocalStorage items
       const STORAGE_KEY = `user_shayaris_${poetName.toLowerCase().replace(/\s+/g, '_')}`;
       const localShayris = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
       
-      // 3. Combine with static data
+      // 3. Static data
       const staticData = (poetsStaticData[poetName] || []).map((text, idx) => ({ 
         _id: `static-${idx}`, 
         text, 
@@ -39,7 +38,7 @@ const RahatPage = () => {
         category: "general" 
       }));
       
-      // 4. Merge and Deduplicate by text
+      // 4. Unified Deduplication
       const allMerged = [...backendShayris, ...localShayris, ...staticData];
       const seen = new Set();
       const uniqueShayris = allMerged.filter(item => {
@@ -51,24 +50,8 @@ const RahatPage = () => {
       });
 
       // 5. Update State
-      setCount(uniqueShayris.length);
-      
-      // Refined Life Advice logic:
-      const remainder = uniqueShayris.length % pageSize;
-      let total;
-      if (uniqueShayris.length === 0) {
-        total = 0;
-      } else if (remainder === 0 || remainder === 3) {
-        total = Math.ceil(uniqueShayris.length / pageSize) + 1;
-      } else {
-        total = Math.ceil(uniqueShayris.length / pageSize);
-      }
-      setTotalPages(total || 1);
-      
-      // 6. Slice for current page
-      const startIndex = (page - 1) * pageSize;
-      setShayris(uniqueShayris.slice(startIndex, startIndex + pageSize));
-      
+      setAllShayris(uniqueShayris);
+      setTotalPages(Math.max(1, Math.ceil(uniqueShayris.length / pageSize)));
       setLoading(false);
     } catch (err) {
       console.error("Fetch error, using static + local fallback");
@@ -85,26 +68,24 @@ const RahatPage = () => {
         return true;
       });
 
-      setCount(unique.length);
-      const remainder = unique.length % pageSize;
-      const total = (unique.length === 0) ? 0 : (remainder === 0 || remainder === 3) ? Math.ceil(unique.length / pageSize) + 1 : Math.ceil(unique.length / pageSize);
-      setTotalPages(total || 1);
-      
-      const startIndex = (page - 1) * pageSize;
-      setShayris(unique.slice(startIndex, startIndex + pageSize));
+      setAllShayris(unique);
+      setTotalPages(Math.max(1, Math.ceil(unique.length / pageSize)));
       setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchShayris();
-  }, [page]);
+  }, []);
 
   const handleDeleteShayri = (id) => {
-    setShayris(prev => prev.filter(s => s._id !== id));
-    setCount(prev => prev - 1);
-    fetchShayris();
+    const updated = allShayris.filter(s => s._id !== id);
+    setAllShayris(updated);
+    setTotalPages(Math.max(1, Math.ceil(updated.length / pageSize)));
   };
+
+  const currentShayris = allShayris.slice((page - 1) * pageSize, page * pageSize);
+
 
   const adviceConfig = {
     title: "Fiery Spirit",
@@ -162,7 +143,7 @@ const RahatPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
         <AnimatePresence mode="popLayout">
-          {shayris.length > 0 && shayris.map((shayri, index) => (
+          {currentShayris.length > 0 && currentShayris.map((shayri, index) => (
             <motion.div
               key={shayri._id}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -180,7 +161,7 @@ const RahatPage = () => {
         </AnimatePresence>
       </div>
 
-      {shayris.length > 0 && page === totalPages && (
+      {currentShayris.length > 0 && page === totalPages && (
         <LifeAdvice {...adviceConfig} />
       )}
 

@@ -18,78 +18,76 @@ const poetImages = {
 
 const PoetPage = () => {
   const { name } = useParams();
-  const [shayris, setShayris] = useState([]);
+  const [allShayris, setAllShayris] = useState([]);
   const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const pageSize = 4;
 
-  // Hardcoded fallback data for Jaun Elia (in case backend/seeding fails)
-  const jaunFallback = [
-    { _id: "f1", text: "Main bhi bohot ajeeb hoon itna ajeeb hoon ke bas, Khud ko tabaah kar liya aur malaal bhi nahi.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f2", text: "Ab nahi koi baat khatre ki, Ab sabhi ko sabhi se khatra hai.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f3", text: "Tum mera naam kyun nahi leti, Mujh se milne kyun nahi aati.", poet: "Jaun Elia", category: "love" },
-    { _id: "f4", text: "Kya sitam hai ke ab teri surat, Ghaur karne pe yaad aati hai.", poet: "Jaun Elia", category: "love" },
-    { _id: "f5", text: "Hum kahan ke dana the kis hunar mein yakta the, Be-sabab dushman hua aasman apna.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f6", text: "Zindagi kis tarah basar hogi, Dil nahi lag raha mohabbat mein.", poet: "Jaun Elia", category: "love" },
-    { _id: "f7", text: "Ek hi hadsa to hai aur wo ye ke aaj tak, Baat nahi kahi gayi baat nahi suni gayi.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f8", text: "Kitne aish se rehte honge kitne itraate honge, Jaane kaise log wo honge jo usko bhaate honge.", poet: "Jaun Elia", category: "love" },
-    { _id: "f9", text: "Ab to har baat yaad rehti hai, Ghalat aur sahi ka kya karna.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f10", text: "Shayad mujhe kisi se mohabbat nahi hui, Lekin yaqeen sab ko dilata raha hoon main.", poet: "Jaun Elia", category: "attitude" },
-    { _id: "f11", text: "Main bhi bohot ajeeb hoon itna ajeeb hoon ke bas, Khud ko tabaah kar liya aur malaal bhi nahi.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f12", text: "Kisi se koi bhi umeed rakhna, Yeh sab se bada dhoka hai.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f13", text: "Dil ki takleef kam nahi hoti, Ab koi marham bhi nahi milta.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f14", text: "Mujh se mil kar udaas kyun hai, Kya mujhe pehchaan liya hai.", poet: "Jaun Elia", category: "love" },
-    { _id: "f15", text: "Main ne maana ke kuch nahi hoon main, Phir bhi tujh se kam nahi hoon main.", poet: "Jaun Elia", category: "attitude" },
-    { _id: "f16", text: "Aaj kal main bohot udaas rehta hoon, Aaj kal main kisi se baat nahi karta.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f17", text: "Koi mujh tak nahi pohanchta hai, Is qadar faasla ho gaya hoon main.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f18", text: "Main jo hoon wo hoon, Aur jo nahi hoon wo ban nahi sakta.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f19", text: "Zindagi ek khwab hai, Aur khwab bhi adhoora hai.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f20", text: "Main bhi khush था kabhi, Ab to sirf yaadein reh gayi hain.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f21", text: "Dil ko kisi ki aadat ho gayi hai, Aur wo aadat bhi buri ho gayi hai.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f22", text: "Mohabbat kar ke dekha hai, Bas dard hi mila hai.", poet: "Jaun Elia", category: "love" },
-    { _id: "f23", text: "Ab to khud se bhi baat nahi hoti, Itna tanha ho gaya hoon main.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f24", text: "Kuch log zindagi mein aise aate hain, Jo sirf dard de jaate hain.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f25", text: "Main kisi ka nahi raha, Aur koi mera nahi raha.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f26", text: "Ajeeb sa dard hai dil mein, Jo kisi ko samajh nahi aata.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f27", text: "Main toot chuka hoon andar se, Par muskura raha hoon bahar se.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f28", text: "Ab kisi se koi gila nahi, Bas khud se hi shikayat hai.", poet: "Jaun Elia", category: "dard" },
-    { _id: "f29", text: "Zindagi se thak chuka hoon, Ab sukoon chahta hoon.", poet: "Jaun Elia", category: "philosophy" },
-    { _id: "f30", text: "Main khud se hi haar gaya hoon, Aur ab jeetne ki himmat nahi.", poet: "Jaun Elia", category: "philosophy" }
-  ];
+  const fetchShayris = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch Backend (attempt to get all)
+      const { data } = await axios.get(`https://saizan-shayri-backend.onrender.com/api/shayri/poet/${name}?limit=all`);
+      const backendShayris = data.shayris || [];
+
+      // 2. Local Storage fallback/merge (optional but good for consistency)
+      const STORAGE_KEY = `user_shayaris_${name.toLowerCase().replace(/\s+/g, '_')}`;
+      const localShayris = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+      // 3. Static Data (using the same source as others)
+      const staticData = (poetsStaticData[name] || []).map((text, idx) => ({
+        _id: `static-${idx}`,
+        text,
+        poet: name,
+        category: "general"
+      }));
+
+      // 4. Merge and Deduplicate
+      const allMerged = [...backendShayris, ...localShayris, ...staticData];
+      const seen = new Set();
+      const uniqueShayris = allMerged.filter(item => {
+        if (!item || typeof item.text !== 'string') return false;
+        const textKey = item.text.trim().toLowerCase();
+        if (seen.has(textKey)) return false;
+        seen.add(textKey);
+        return true;
+      });
+
+      setAllShayris(uniqueShayris);
+      setTotalPages(Math.max(1, Math.ceil(uniqueShayris.length / pageSize)));
+    } catch (error) {
+      console.error('Error fetching shayris', error);
+      // Fallback to static + local
+      const staticData = (poetsStaticData[name] || []).map((text, idx) => ({ _id: `static-${idx}`, text, poet: name, category: "general" }));
+      const localShayris = JSON.parse(localStorage.getItem(`user_shayaris_${name.toLowerCase().replace(/\s+/g, '_')}`)) || [];
+      const combined = [...localShayris, ...staticData];
+      
+      const seen = new Set();
+      const unique = combined.filter(item => {
+        if (!item || typeof item.text !== 'string') return false;
+        const key = item.text.trim().toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      setAllShayris(unique);
+      setTotalPages(Math.max(1, Math.ceil(unique.length / pageSize)));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchShayris = async () => {
-      setLoading(true);
-      try {
-        const { data } = await axios.get(`https://saizan-shayri-backend.onrender.com/api/shayri/poet/${name}?pageNumber=${page}`);
-
-        if (data.shayris && data.shayris.length > 0) {
-          setShayris(data.shayris);
-          setPages(data.pages);
-        } else if (name === "Jaun Elia") {
-          // If backend returns empty, use frontend fallback
-          const pageSize = 4;
-          setPages(Math.ceil(jaunFallback.length / pageSize));
-          const startIndex = (page - 1) * pageSize;
-          setShayris(jaunFallback.slice(startIndex, startIndex + pageSize));
-        } else {
-          setShayris([]);
-          setPages(1);
-        }
-      } catch (error) {
-        console.error('Error fetching shayris', error);
-        if (name === "Jaun Elia") {
-          const pageSize = 4;
-          setPages(Math.ceil(jaunFallback.length / pageSize));
-          const startIndex = (page - 1) * pageSize;
-          setShayris(jaunFallback.slice(startIndex, startIndex + pageSize));
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchShayris();
-  }, [name, page]);
+  }, [name]);
+
+  const currentShayris = allShayris.slice((page - 1) * pageSize, page * pageSize);
+
+  // Re-calculating pages UI logic remains the same but using totalPages
+  const pages = totalPages;
+
 
   return (
     <div className="space-y-6 md:space-y-12 pb-20">
@@ -115,7 +113,7 @@ const PoetPage = () => {
         <>
           <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-8">
             <AnimatePresence mode="popLayout">
-              {shayris.map((shayri, index) => (
+              {currentShayris.map((shayri, index) => (
                 <motion.div
                   key={shayri._id}
                   initial={{ opacity: 0, scale: 0.95 }}
