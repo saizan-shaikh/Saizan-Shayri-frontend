@@ -6,10 +6,22 @@ import { PlusCircle, Send, User, Tag, BookOpen, ArrowLeft, Edit3 } from 'lucide-
 import { motion } from 'framer-motion';
 import BASE_URL from '../config/api';
 
+import { poetsStaticData } from '../data/poetData';
+
 const AddShayri = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // Simple key mapping for consistency across the app
+  const poetKeyMap = {
+    "Mirza Ghalib": "ghalib",
+    "Jaun Elia": "jaun",
+    "Allama Iqbal": "iqbal",
+    "Faiz Ahmed Faiz": "faiz",
+    "Mir Taqi Mir": "mir",
+    "Rahat Indori": "rahat"
+  };
   
   const [formData, setFormData] = useState({
     text: '',
@@ -73,11 +85,30 @@ const AddShayri = () => {
       } else {
         const { data: newShayari } = await axios.post(`${BASE_URL}/admin/shayri`, formData);
         
-        // Persist to localStorage for immediate data-merging on poet pages
-        const STORAGE_KEY = `user_shayaris_${formData.poet.toLowerCase().replace(/\s+/g, '_')}`;
-        const existing = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        const updated = [...existing, newShayari];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        // 1. Get the standardized storage key
+        const simpleKey = poetKeyMap[formData.poet] || `user_shayaris_${formData.poet.toLowerCase().replace(/\s+/g, '_')}`;
+        
+        // 2. Load existing collection or initialize with defaults
+        const existingData = localStorage.getItem(simpleKey);
+        let collection = [];
+
+        if (existingData) {
+          collection = JSON.parse(existingData);
+        } else {
+          // Self-Seeding: Start with the 30 originals
+          collection = (poetsStaticData[formData.poet] || []).map((text, idx) => ({ 
+            _id: `static-${idx}`, 
+            text, 
+            poet: formData.poet, 
+            category: "general" 
+          }));
+        }
+
+        // 3. Append new Shayari at the END
+        const updatedCollection = [...collection, newShayari];
+        
+        // 4. Save the ENTIRE list back to localStorage
+        localStorage.setItem(simpleKey, JSON.stringify(updatedCollection));
         
         toast.success('Shayri added successfully!');
         setFormData({ 

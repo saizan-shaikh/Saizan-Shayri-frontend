@@ -19,35 +19,34 @@ const GhalibPage = () => {
   const poetName = "Mirza Ghalib";
   const poetImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAY4-74QC1sADfuhR3SGo_KB-3cE7j4UKUI9_6nMWtNA&s";
 
+  const STORAGE_KEY = "ghalib";
+
   const fetchShayris = async () => {
     setLoading(true);
     try {
-      // 1. Load LocalStorage items (User added ones)
-      const STORAGE_KEY = `user_shayaris_${poetName.toLowerCase().replace(/\s+/g, '_')}`;
-      const localShayris = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      // 1. Check LocalStorage for the ENTIRE collection
+      const localData = localStorage.getItem(STORAGE_KEY);
+      let collection = [];
       
-      // 2. Static data (The original 30)
-      const staticData = (poetsStaticData[poetName] || []).map((text, idx) => ({ 
-        _id: `static-${idx}`, 
-        text, 
-        poet: poetName, 
-        category: "general" 
-      }));
-      
-      // 3. Unified Deduplication: Defaults First, Local Additions at the End
-      const allMerged = [...staticData, ...localShayris];
-      const seen = new Set();
-      const uniqueShayris = allMerged.filter(item => {
-        if (!item || typeof item.text !== 'string') return false;
-        const textKey = item.text.trim().toLowerCase();
-        if (seen.has(textKey)) return false;
-        seen.add(textKey);
-        return true;
-      });
+      if (localData) {
+        // Use the existing persistent collection
+        collection = JSON.parse(localData);
+      } else {
+        // 2. Self-Seeding: First time visit, load from static and SAVE to localStorage
+        const staticItems = (poetsStaticData[poetName] || []).map((text, idx) => ({ 
+          _id: `static-${idx}`, 
+          text, 
+          poet: poetName, 
+          category: "general" 
+        }));
+        
+        collection = staticItems;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(staticItems));
+      }
 
-      // 4. Update State (Single Source of Truth)
-      setAllShayris(uniqueShayris);
-      setTotalPages(Math.max(1, Math.ceil(uniqueShayris.length / pageSize)));
+      // 3. Update State
+      setAllShayris(collection);
+      setTotalPages(Math.max(1, Math.ceil(collection.length / pageSize)));
       setLoading(false);
     } catch (err) {
       console.error("Fetch error, using static fallback");
@@ -66,6 +65,8 @@ const GhalibPage = () => {
     const updated = allShayris.filter(s => s._id !== id);
     setAllShayris(updated);
     setTotalPages(Math.max(1, Math.ceil(updated.length / pageSize)));
+    // Persist the deletion
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
 
   const currentShayris = allShayris.slice((page - 1) * pageSize, page * pageSize);
