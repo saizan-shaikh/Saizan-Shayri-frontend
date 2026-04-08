@@ -22,15 +22,11 @@ const JaunEliaPage = () => {
   const fetchShayris = async () => {
     setLoading(true);
     try {
-      // 1. Fetch Backend Shayaris
-      const { data } = await axios.get(`${BASE_URL}/shayri/poet/${poetName}?limit=all`);
-      const backendShayris = data.shayris || [];
-      
-      // 2. Load LocalStorage items
+      // 1. Load LocalStorage items (User added ones)
       const STORAGE_KEY = `user_shayaris_${poetName.toLowerCase().replace(/\s+/g, '_')}`;
       const localShayris = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
       
-      // 3. Static data
+      // 2. Static data (The original 30)
       const staticData = (poetsStaticData[poetName] || []).map((text, idx) => ({ 
         _id: `static-${idx}`, 
         text, 
@@ -38,8 +34,8 @@ const JaunEliaPage = () => {
         category: "general" 
       }));
       
-      // 4. Unified Deduplication
-      const allMerged = [...backendShayris, ...localShayris, ...staticData];
+      // 3. Unified Deduplication: Defaults First, Local Additions at the End
+      const allMerged = [...staticData, ...localShayris];
       const seen = new Set();
       const uniqueShayris = allMerged.filter(item => {
         if (!item || typeof item.text !== 'string') return false;
@@ -49,27 +45,15 @@ const JaunEliaPage = () => {
         return true;
       });
 
-      // 5. Update State
+      // 4. Update State (Single Source of Truth)
       setAllShayris(uniqueShayris);
       setTotalPages(Math.max(1, Math.ceil(uniqueShayris.length / pageSize)));
       setLoading(false);
     } catch (err) {
-      console.error("Fetch error, using static + local fallback");
+      console.error("Fetch error, using static fallback");
       const staticData = (poetsStaticData[poetName] || []).map((text, idx) => ({ _id: `static-${idx}`, text, poet: poetName, category: "general" }));
-      const localShayris = JSON.parse(localStorage.getItem(`user_shayaris_${poetName.toLowerCase().replace(/\s+/g, '_')}`)) || [];
-      const combined = [...localShayris, ...staticData];
-      
-      const seen = new Set();
-      const unique = combined.filter(item => {
-        if (!item || typeof item.text !== 'string') return false;
-        const key = item.text.trim().toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-
-      setAllShayris(unique);
-      setTotalPages(Math.max(1, Math.ceil(unique.length / pageSize)));
+      setAllShayris(staticData);
+      setTotalPages(Math.max(1, Math.ceil(staticData.length / pageSize)));
       setLoading(false);
     }
   };
