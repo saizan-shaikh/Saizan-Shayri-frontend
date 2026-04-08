@@ -37,7 +37,7 @@ const MirPage = () => {
         // 2. Self-Seeding: First time visit, load from static and SAVE to localStorage
         const staticItems = (poetsStaticData[poetName] || []).map((text, idx) => ({ 
           _id: `static-${idx}`, 
-          text, 
+          shayari: text, 
           poet: poetName, 
           category: "general" 
         }));

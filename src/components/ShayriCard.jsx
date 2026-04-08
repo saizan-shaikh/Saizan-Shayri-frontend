@@ -22,18 +22,18 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage, onDelete }) => {
   const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
   const navigate = useNavigate();
   
-  const isFavorite = favorites.some(fav => fav._id === shayri._id || fav.text === shayri.text);
+  const isFavorite = favorites.some(fav => fav._id === shayri._id || (fav.shayari || fav.text) === (shayri.shayari || shayri.text));
   const displayImage = poetImage || poetImages[shayri.poet] || "https://via.placeholder.com/200x200?text=Poet";
 
   const handleCopy = () => {
-    const textToCopy = transliterate(shayri.text, lang);
+    const textToCopy = transliterate(shayri.shayari || shayri.text, lang);
     navigator.clipboard.writeText(textToCopy);
     toast.success('Shayri copied to clipboard!');
   };
 
   const handleDownload = () => {
     const element = document.createElement("a");
-    const file = new Blob([transliterate(shayri.text, lang)], {type: 'text/plain'});
+    const file = new Blob([transliterate(shayri.shayari || shayri.text, lang)], {type: 'text/plain'});
     element.href = URL.createObjectURL(file);
     element.download = `${shayri.poet}_shayri.txt`;
     document.body.appendChild(element);
@@ -146,7 +146,7 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage, onDelete }) => {
               className={`text-sm sm:text-base md:text-xl font-bold tracking-tight leading-loose text-slate-800 ${lang === 'urdu' ? 'font-serif' : ''} text-center w-full break-words overflow-wrap-anywhere`}
               dir={lang === 'urdu' ? 'rtl' : 'ltr'}
             >
-              {transliterate(shayri.text, lang)}
+              {transliterate(shayri.shayari || shayri.text, lang)}
             </motion.p>
           </AnimatePresence>
         </div>

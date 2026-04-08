@@ -98,14 +98,20 @@ const AddShayri = () => {
           // Self-Seeding: Start with the 30 originals
           collection = (poetsStaticData[formData.poet] || []).map((text, idx) => ({ 
             _id: `static-${idx}`, 
-            text, 
+            shayari: text, // Standardized key
             poet: formData.poet, 
             category: "general" 
           }));
         }
 
-        // 3. Append new Shayari at the END
-        const updatedCollection = [...collection, newShayari];
+        // 3. Format new Shayari and Append
+        const formattedNewShayari = {
+          ...newShayari,
+          _id: newShayari._id || Date.now().toString(),
+          shayari: newShayari.text || formData.text // Ensure we use 'shayari'
+        };
+
+        const updatedCollection = [...collection, formattedNewShayari];
         
         // 4. Save the ENTIRE list back to localStorage
         localStorage.setItem(simpleKey, JSON.stringify(updatedCollection));

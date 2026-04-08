@@ -16,7 +16,7 @@ export const FavoritesProvider = ({ children }) => {
 
   const addToFavorites = (shayri) => {
     setFavorites((prev) => {
-      const isFav = prev.some((fav) => fav._id === shayri._id || fav.text === shayri.text);
+      const isFav = prev.some((fav) => fav._id === shayri._id || (fav.shayari || fav.text) === (shayri.shayari || shayri.text));
       if (isFav) return prev; // Prevent duplicates
 
       const newFavs = [...prev, shayri];
