@@ -96,14 +96,17 @@ const ShayriCard = ({ shayri, poetImage, isFavoritePage, onDelete }) => {
               {!isFavoritePage && (
                 <div className="flex items-center space-x-1.5">
                   <button
-                    onClick={() => navigate(`/edit-shayri/${shayri._id}`)}
+                    onClick={() => {
+                      localStorage.setItem("editShayari", JSON.stringify(shayri));
+                      navigate('/add-shayri');
+                    }}
                     className="p-1.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition-colors shadow-sm"
                     title="Edit Shayri"
                   >
                     <Edit3 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </button>
                   <button
-                    onClick={handleDelete}
+                    onClick={() => onDelete(shayri._id)}
                     className="p-1.5 rounded-xl bg-red-50 text-red-500 border border-red-100 hover:bg-red-100 transition-colors shadow-sm"
                     title="Delete Shayri"
                   >

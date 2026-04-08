@@ -42,17 +42,36 @@ const AddShayri = () => {
     "Love", "Sad", "Philosophy", "Attitude", "Life", "Zindagi", "Aashiqui", "Other"
   ];
 
+  const [editId, setEditId] = useState(null);
+
   useEffect(() => {
+    // 1. Check for LocalStorage Edit Data (Preferred Flow)
+    const editData = localStorage.getItem("editShayari");
+    if (editData) {
+      const parsed = JSON.parse(editData);
+      setFormData({
+        text: parsed.shayari || parsed.text || '',
+        poet: parsed.poet || '',
+        category: parsed.category || '',
+        language: parsed.language || 'roman'
+      });
+      setEditId(parsed._id || parsed.id);
+      setIsLoading(false);
+      return; 
+    }
+
+    // 2. Fallback to URL Param Link (Backend Flow)
     if (id) {
       const fetchShayri = async () => {
         try {
           const { data } = await axios.get(`${BASE_URL}/shayri/${id}`);
           setFormData({
-            text: data.text,
+            text: data.text || data.shayari,
             poet: data.poet,
             category: data.category,
             language: data.language || 'roman'
           });
+          setEditId(id);
         } catch (error) {
           toast.error('Failed to fetch shayri details');
           navigate('/add-shayri');
@@ -68,6 +87,11 @@ const AddShayri = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleDiscard = () => {
+    localStorage.removeItem("editShayari");
+    navigate(-1);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -78,42 +102,50 @@ const AddShayri = () => {
 
     setIsSubmitting(true);
     try {
-      if (id) {
-        await axios.put(`${BASE_URL}/admin/shayri/${id}`, formData);
-        toast.success('Shayri updated successfully!');
-        setTimeout(() => navigate(-1), 1500);
+      const simpleKey = poetKeyMap[formData.poet] || `user_shayaris_${formData.poet.toLowerCase().replace(/\s+/g, '_')}`;
+      const existingData = localStorage.getItem(simpleKey);
+      let collection = [];
+
+      if (existingData) {
+        collection = JSON.parse(existingData);
       } else {
+        collection = (poetsStaticData[formData.poet] || []).map((text, idx) => ({ 
+          _id: `static-${idx}`, 
+          shayari: text,
+          poet: formData.poet, 
+          category: "general" 
+        }));
+      }
+
+      if (editId) {
+        // UPDATE MODE
+        const updatedCollection = collection.map(item => {
+          if ((item._id || item.id) === editId) {
+            return {
+              ...item,
+              shayari: formData.text,
+              poet: formData.poet,
+              category: formData.category
+            };
+          }
+          return item;
+        });
+
+        localStorage.setItem(simpleKey, JSON.stringify(updatedCollection));
+        localStorage.removeItem("editShayari");
+        toast.success('Shayri updated successfully!');
+        setTimeout(() => navigate(-1), 1000);
+      } else {
+        // ADD MODE
         const { data: newShayari } = await axios.post(`${BASE_URL}/admin/shayri`, formData);
         
-        // 1. Get the standardized storage key
-        const simpleKey = poetKeyMap[formData.poet] || `user_shayaris_${formData.poet.toLowerCase().replace(/\s+/g, '_')}`;
-        
-        // 2. Load existing collection or initialize with defaults
-        const existingData = localStorage.getItem(simpleKey);
-        let collection = [];
-
-        if (existingData) {
-          collection = JSON.parse(existingData);
-        } else {
-          // Self-Seeding: Start with the 30 originals
-          collection = (poetsStaticData[formData.poet] || []).map((text, idx) => ({ 
-            _id: `static-${idx}`, 
-            shayari: text, // Standardized key
-            poet: formData.poet, 
-            category: "general" 
-          }));
-        }
-
-        // 3. Format new Shayari and Append
         const formattedNewShayari = {
           ...newShayari,
           _id: newShayari._id || Date.now().toString(),
-          shayari: newShayari.text || formData.text // Ensure we use 'shayari'
+          shayari: newShayari.text || formData.text
         };
 
         const updatedCollection = [...collection, formattedNewShayari];
-        
-        // 4. Save the ENTIRE list back to localStorage
         localStorage.setItem(simpleKey, JSON.stringify(updatedCollection));
         
         toast.success('Shayri added successfully!');
@@ -150,24 +182,24 @@ const AddShayri = () => {
       >
         {/* Back Button */}
         <button 
-          onClick={() => navigate(-1)}
+          onClick={handleDiscard}
           className="mb-8 flex items-center text-slate-400 hover:text-blue-600 transition-colors font-bold text-sm uppercase tracking-widest group"
         >
           <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-          {id ? 'Discard Changes' : 'Back to Gallery'}
+          {editId ? 'Discard Changes' : 'Back to Gallery'}
         </button>
 
         <div className="glass rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/20">
           <div className="flex items-center space-x-4 mb-10">
             <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
-              {id ? <Edit3 className="w-8 h-8 text-white" /> : <PlusCircle className="w-8 h-8 text-white" />}
+              {editId ? <Edit3 className="w-8 h-8 text-white" /> : <PlusCircle className="w-8 h-8 text-white" />}
             </div>
             <div>
               <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-                {id ? 'Edit' : 'Post Your'} <span className="text-blue-600">Shayri</span>
+                {editId ? 'Edit' : 'Post Your'} <span className="text-blue-600">Shayri</span>
               </h2>
               <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mt-1">
-                {id ? 'Refining the Literature' : 'Contribute to the Book'}
+                {editId ? 'Refining the Literature' : 'Contribute to the Book'}
               </p>
             </div>
           </div>
@@ -245,7 +277,7 @@ const AddShayri = () => {
               ) : (
                 <>
                   <Send className="w-5 h-5 mr-3" />
-                  {id ? 'Update Shayri' : 'Publish Shayri'}
+                  {editId ? 'Update Shayri' : 'Publish Shayri'}
                 </>
               )}
             </button>
